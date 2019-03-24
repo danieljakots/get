@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+
+# Copyright (c) 2019 Daniel Jakots
+#
+# Licensed under the MIT license. See the LICENSE file.
+
+import os
+import subprocess
+import sys
+
+REPOSITORIES_PATH = "/path/to/your/all/your/git/repositories/"
+
+
+def usage():
+    print(
+        "usage: " + sys.argv[0] + " ssh://git@gitlab.com/foo/bar.git", file=sys.stderr
+    )
+    print("usage: " + sys.argv[0] + " https://github.com/foo/bar.git", file=sys.stderr)
+    sys.exit(1)
+
+
+# This gonna be dirty and full of assumptions. Try to laugh instead of cringe
+def parse_url(url):
+    if url[-4:] != ".git":
+        print("Is '.git' missing?", file=sys.stderr)
+        usage()
+    if url[:3] == "ssh":
+        hoster, account, project = parse_ssh_url(url)
+    elif url[:4] == "http":
+        hoster, account, project = parse_http_url(url)
+    else:
+        print("Is scheme missing?", file=sys.stderr)
+        usage()
+    return hoster, account, project
+
+
+def parse_ssh_url(url):
+    try:
+        _, _, loginurl, account, project = url[:-4].split("/")
+    except ValueError:
+        # must be my gitolite
+        _, _, loginurl, project = url[:-4].split("/")
+        account = "me"
+    hoster = loginurl.split("@")[1]
+    return hoster, account, project
+
+
+def parse_http_url(url):
+    _, _, hoster, account, project = url[:-4].split("/")
+    return hoster, account, project
+
+
+def main(url):
+    hoster, account, project = parse_url(url)
+    path = f"{REPOSITORIES_PATH}/{hoster}/{account}/"
+    os.makedirs(path, exist_ok=True)
+    subprocess.run(["git", "-C", path, "clone", url])
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        usage()
+    url = sys.argv[1]
+    main(url)
