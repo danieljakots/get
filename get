@@ -28,8 +28,12 @@ def parse_url(url):
         hoster, account, project = parse_ssh_url(url)
     elif url[:4] == "http":
         hoster, account, project = parse_http_url(url)
+    # seems to be git@example.com:foo.git
+    elif ":" in url:
+        url = "ssh://" + url.replace(":", "/")
+        hoster, account, project = parse_ssh_url(url)
     else:
-        print("Is scheme missing?", file=sys.stderr)
+        print("The url doesn't look like correct", file=sys.stderr)
         usage()
     return hoster, account, project
 
