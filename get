@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-REPOSITORIES_PATH = "/path/to/your/all/your/git/repositories/"
+REPOSITORIES_PATH = "~/git"
 
 
 def usage():
@@ -52,7 +52,8 @@ def parse_http_url(url):
 
 def main(url):
     hoster, tree, project = parse_url(url)
-    path = f"{REPOSITORIES_PATH}/{hoster}/{'/'.join(tree)}/"
+    repositories_path = os.path.expanduser(REPOSITORIES_PATH)
+    path = f"{repositories_path}/{hoster}/{'/'.join(tree)}/"
     os.makedirs(path, exist_ok=True)
     subprocess.run(["git", "-C", path, "clone", url])
 
