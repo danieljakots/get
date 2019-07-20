@@ -24,39 +24,35 @@ def parse_url(url):
     if url[-4:] != ".git":
         print("Is '.git' missing?", file=sys.stderr)
         usage()
+
     if url[:3] == "ssh":
-        hoster, account, project = parse_ssh_url(url)
+        hoster, tree, project = parse_ssh_url(url)
     elif url[:4] == "http":
-        hoster, account, project = parse_http_url(url)
+        hoster, tree, project = parse_http_url(url)
     # seems to be git@example.com:foo.git
     elif ":" in url:
         url = "ssh://" + url.replace(":", "/")
-        hoster, account, project = parse_ssh_url(url)
+        hoster, tree, project = parse_ssh_url(url)
     else:
         print("The url doesn't look like correct", file=sys.stderr)
         usage()
-    return hoster, account, project
+    return hoster, tree, project
 
 
 def parse_ssh_url(url):
-    try:
-        _, _, loginurl, account, project = url[:-4].split("/")
-    except ValueError:
-        # must be my gitolite
-        _, _, loginurl, project = url[:-4].split("/")
-        account = "me"
+    _, _, loginurl, *tree, project = url[:-4].split("/")
     hoster = loginurl.split("@")[1]
-    return hoster, account, project
+    return hoster, tree, project
 
 
 def parse_http_url(url):
     _, _, hoster, account, project = url[:-4].split("/")
-    return hoster, account, project
+    return hoster, tree, project
 
 
 def main(url):
-    hoster, account, project = parse_url(url)
-    path = f"{REPOSITORIES_PATH}/{hoster}/{account}/"
+    hoster, tree, project = parse_url(url)
+    path = f"{REPOSITORIES_PATH}/{hoster}/{'/'.join(tree)}/"
     os.makedirs(path, exist_ok=True)
     subprocess.run(["git", "-C", path, "clone", url])
 
