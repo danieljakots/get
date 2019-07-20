@@ -26,27 +26,17 @@ def parse_url(url):
         usage()
 
     if url[:3] == "ssh":
-        hoster, tree, project = parse_ssh_url(url)
+        _, _, loginurl, *tree, project = url[:-4].split("/")
+        hoster = loginurl.split("@")[1]
     elif url[:4] == "http":
-        hoster, tree, project = parse_http_url(url)
+        _, _, hoster, account, project = url[:-4].split("/")
     # seems to be git@example.com:foo.git
     elif ":" in url:
         url = "ssh://" + url.replace(":", "/")
-        hoster, tree, project = parse_ssh_url(url)
+        return parse_url(url)
     else:
         print("The url doesn't look like correct", file=sys.stderr)
         usage()
-    return hoster, tree, project
-
-
-def parse_ssh_url(url):
-    _, _, loginurl, *tree, project = url[:-4].split("/")
-    hoster = loginurl.split("@")[1]
-    return hoster, tree, project
-
-
-def parse_http_url(url):
-    _, _, hoster, account, project = url[:-4].split("/")
     return hoster, tree, project
 
 
