@@ -29,7 +29,7 @@ def parse_url(url):
         _, _, loginurl, *tree, project = url[:-4].split("/")
         hoster = loginurl.split("@")[1]
     elif url[:4] == "http":
-        _, _, hoster, account, project = url[:-4].split("/")
+        _, _, hoster, *tree, project = url[:-4].split("/")
     # seems to be git@example.com:foo.git
     elif ":" in url:
         url = "ssh://" + url.replace(":", "/")
