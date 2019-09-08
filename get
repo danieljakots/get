@@ -46,7 +46,7 @@ def main(url):
     path = f"{repositories_path}/{hoster}/{'/'.join(tree)}/"
     os.makedirs(path, exist_ok=True)
     subprocess.run(["git", "-C", path, "clone", url])
-    print(f"{url} has been cloned in {path}")
+    print(f"{url} has been cloned in {path}{project}")
 
 
 if __name__ == "__main__":
