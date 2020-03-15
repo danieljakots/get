@@ -22,8 +22,7 @@ def usage():
 # This gonna be dirty and full of assumptions. Try to laugh instead of cringe
 def parse_url(url):
     if url[-4:] != ".git":
-        print("Is '.git' missing?", file=sys.stderr)
-        usage()
+        url = f"{url}.git"
 
     if url[:3] == "ssh":
         _, _, loginurl, *tree, project = url[:-4].split("/")
